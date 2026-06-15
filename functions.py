@@ -176,12 +176,15 @@ def cursor_to_beginning(r_edit_line: QLineEdit) -> None:
     r_edit_line.setCursorPosition(0)
 
 
-def put_clipboard(widget: QLineEdit) -> None:
+def put_clipboard(widget: QLineEdit) -> bool:
     """
     Копирует текст из widget в буфер обмена и отображает сообщение о копировании.
 
     Args:
         widget (QLineEdit): Поле, текст из которого будет скопирован.
+
+    Returns:
+        bool: True, если текст успешно записан в буфер обмена.
     """
     clipboard = QApplication.clipboard()  # Получение доступа к буферу обмена
     if clipboard and widget.text():
@@ -189,10 +192,12 @@ def put_clipboard(widget: QLineEdit) -> None:
         show_message(
             C.TEXT_WRITTEN_IN_CLIPBOARD, C.TIME_TO_SHOW_SUCCESS_MS
         )  # Сообщение о копировании в буфер обмена
+        return True
     else:
         show_message(
             C.TEXT_NO_WRITTEN_IN_CLIPBOARD, C.TIME_TO_SHOW_FAILURE_MS
         )  # Сообщение о провале копирования в буфер обмена
+        return False
 
 
 def show_message(text: str, wait: int) -> None:
