@@ -94,6 +94,10 @@ class Report(QMainWindow):
         """Для всех полей ввода назначает программу обработки сигнала завершения ввода"""
         for line_edit in self.input_line_edits.keys():
             line_edit.signal_focus_out.connect(self.handler_signal_focus_out)
+        for line_edit in (self.edtToCorporation, self.edtPercentNDS):
+            line_edit.signal_invalid_focus_out.connect(
+                self.handler_invalid_reference_value
+            )
 
     def set_event_filters(self) -> None:
         """Для всех полей вывода инициирует обработку кликов по полям."""
@@ -230,6 +234,15 @@ class Report(QMainWindow):
 
         attribute_name = self.input_line_edits[obj]
         previous_value = getattr(self, attribute_name)
+        is_reference_changed = (
+            attribute_name in self.reference_values
+            and not math.isclose(previous_value, input_summa, abs_tol=1e-9)
+        )
+
+        if is_reference_changed and not self._confirm_reference_change():
+            f.put_line_input(obj, previous_value)
+            return
+
         setattr(self, attribute_name, input_summa)
         f.put_line_input(obj, input_summa)
 
@@ -241,25 +254,54 @@ class Report(QMainWindow):
 
             if payment_number == len(self.paid_list):
                 self._add_payment_input(payment_number + 1)
-        elif (
-            attribute_name in self.reference_values
-            and not math.isclose(previous_value, input_summa, abs_tol=1e-9)
-        ):
+        elif is_reference_changed:
             self.reference_values[attribute_name] = input_summa
-            self._show_reference_change_warning()
 
         self.compute_and_display()
 
-    def _show_reference_change_warning(self) -> None:
-        """Предупреждает об изменении справочных параметров."""
-        QMessageBox.warning(
-            self,
-            "Изменение справочной информации",
+        if attribute_name == "clients_with_nds" and obj.submitted_by_enter:
+            QtCore.QTimer.singleShot(0, self.edtPaid_1.setFocus)
+
+    def handler_invalid_reference_value(self, obj: ValidatedLineEdit) -> None:
+        """Восстанавливает справочное значение после невалидного ввода."""
+        attribute_name = self.input_line_edits[obj]
+        current_value = self.reference_values[attribute_name]
+        f.put_line_input(obj, current_value)
+        f.set_style_input(obj)
+
+        f.show_message(
+            "Пустое или некорректное значение не может быть применено.\n\n"
+            "Восстановлено последнее подтверждённое значение.",
+            C.TIME_TO_SHOW_FAILURE_MS,
+        )
+
+    def _confirm_reference_change(self) -> bool:
+        """Запрашивает подтверждение изменения справочного параметра."""
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setWindowTitle("Изменение справочной информации")
+        msg_box.setText(
             "Внимание! Изменение справочных значений может привести "
             "к неверным расчётам.\n\n"
             "Новое значение действует только в текущем сеансе программы. "
-            "После перезапуска будет восстановлено значение по умолчанию.",
+            "После перезапуска будет восстановлено значение по умолчанию."
         )
+
+        cancel_button = msg_box.addButton(
+            "Отменить изменение",
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        apply_button = msg_box.addButton(
+            "Применить на текущий сеанс",
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        cancel_button.setDefault(True)
+        cancel_button.setStyleSheet(
+            "font-weight: bold; background-color: #ffd6d6; padding: 6px 12px;"
+        )
+
+        msg_box.exec()
+        return msg_box.clickedButton() is apply_button
 
     def _add_payment_input(self, payment_number: int) -> None:
         """Добавляет следующую строку платежа в форму."""
