@@ -17,18 +17,18 @@ class OutputAN(typing.NamedTuple):
 
 
 class Report(QMainWindow):
-    EditClientsNDS: ValidatedLineEdit
-    EditPaid_1: ValidatedLineEdit
+    edtClientsWithNDS: ValidatedLineEdit
+    edtPaid_1: ValidatedLineEdit
     EditPaid_2: ValidatedLineEdit
     EditPaid_3: ValidatedLineEdit
-    EditPercent_NDS: ValidatedLineEdit
-    rEditClientsNDS: QLineEdit
-    rEditClients: QLineEdit
-    rEditCorpNDS: QLineEdit
-    rEditCorp: QLineEdit
-    rEditLeft: QLineEdit
-    rEditOver: QLineEdit
-    rEditPaid: QLineEdit
+    edtPercentNDS: ValidatedLineEdit
+    edtClientsNDSOutput: QLineEdit
+    edtClientsOutput: QLineEdit
+    edtCorpNDSOutput: QLineEdit
+    edtCorpOutput: QLineEdit
+    edtLeftOutput:QLineEdit
+    edtOverOutput: QLineEdit
+    edtPaidOutput: QLineEdit
 
     def __init__(self) -> None:
         """Инициализация UI, атрибутов и подключение сигналов."""
@@ -36,7 +36,7 @@ class Report(QMainWindow):
         self.init_UI()  # Инициализация UI, подготовленного Qt Designer, в том числе установка атрибутов полей
 
         # Атрибуты хранят финансовые данные
-        self.clients_nds = 0.0  # Заплачено клиентами с НДС
+        self.clients_with_nds = 0.0  # Заплачено клиентами с НДС
         self.clients = 0.0  # Заплачено клиентами без НДС
         self.corp = 0.0  # Подлежит перечислению в корпорацию без НДС
         self.corp_nds = 0.0  # В корпорацию, включая НДС
@@ -95,7 +95,7 @@ class Report(QMainWindow):
     def set_custom_interface(self) -> None:
         """Персонализирует интерфейс"""
         self.set_style_inputs()  # Устанавливает стиль для всех полей ввода информации
-        self.EditPercent_NDS.setText(
+        self.edtPercentNDS.setText(
             f"{self.percent_NDS}"
         )  # Устанавливает значение поля по умолчанию
 
@@ -127,8 +127,8 @@ class Report(QMainWindow):
         - Общая сумма платежей.
         - Остаток платежей.
         """
-        nds_clients = self.clients_nds * self.percent_NDS / (100 + self.percent_NDS)
-        self.clients = round(self.clients_nds - nds_clients, 2)
+        nds_clients = self.clients_with_nds * self.percent_NDS / (100 + self.percent_NDS)
+        self.clients = round(self.clients_with_nds - nds_clients, 2)
         self.corp = round(self.clients * C.PERCENT_CORP / 100, 2)
         # noinspection PyPep8Naming
         nds_corp = self.corp * self.percent_NDS / 100
@@ -174,31 +174,25 @@ class Report(QMainWindow):
 
     def _get_dict_input(self) -> dict:
         return {  # Словарь свойств виджетов ввода
-            self.EditClientsNDS: "clients_nds",  # Поле ввода. "Клиенты" - Сумма, заплаченная клиентами (без НДС).
-            self.EditPaid_1: "paid_1",  # Поле ввода. "Оплачено" - Сумма первого платежа в корпорацию.
-            self.EditPaid_2: "paid_2",  # Поле ввода. "Оплачено" - Сумма второго платежа в корпорацию.
-            self.EditPaid_3: "paid_3",  # Поле ввода. "Оплачено" - Сумма третьего платежа в корпорацию.
-            self.EditPercent_NDS: "percent_NDS",  # Процент НДС, применяемый корпорацией.
+            self.edtClientsWithNDS: "clients_with_nds",  # Поле ввода. "Клиенты" - Сумма, заплаченная клиентами (без НДС).
+            self.edtPaid_1: "paid_1",  # Поле ввода. "Оплачено" - Сумма первого платежа в корпорацию.
+            self.edtPercentNDS: "percent_NDS",  # Процент НДС, применяемый корпорацией.
         }  # Виджеты для ввода информации
 
     def _get_dict_output(self) -> dict:
         return {  # Словарь свойств виджетов вывода
             # Класс OutputAN - имеет 2 параметра: имя атрибута класса и признак, что НДС входит в сумму.
             # Поступило от клиентов c НДС.
-            self.rEditClientsNDS: OutputAN(summa="clients_nds", NDS_including=True),
-            # Поступило от клиентов без НДС.
-            self.rEditClients: OutputAN(summa="clients", NDS_including=False),
+            self.edtClientsOutput: OutputAN(summa="clients", NDS_including=False),
             # Перечислить в корпорацию без НДС.
-            self.rEditCorp: OutputAN(summa="corp", NDS_including=False),
+            self.edtCorpOutput: OutputAN(summa="corp", NDS_including=False),
             # Перечислить в корпорацию с НДС.
-            self.rEditCorpNDS: OutputAN(summa="corp_nds", NDS_including=True),
-            self.rEditPaid: OutputAN(
+            self.edtCorpNDSOutput: OutputAN(summa="corp_nds", NDS_including=True),
+            self.edtPaidOutput: OutputAN(
                 summa="paid", NDS_including=True
             ),  # Всего заплачено с НДС.
-            self.rEditLeft: OutputAN(
-                summa="left", NDS_including=True
-            ),  # Осталось заплатить с НДС.
-            self.rEditOver: OutputAN(
+            self.edtLeftOutput: OutputAN(summa="left", NDS_including=True),  # Осталось заплатить с НДС.
+            self.edtOverOutput: OutputAN(
                 summa="over", NDS_including=True
             ),  # Переплачено с НДС.
         }  # Виджеты для вывода информации
