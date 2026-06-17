@@ -1,0 +1,6 @@
+PyQt6>=6.11.0
+PyQt6-Qt6>=6.11.1
+PyQt6_sip>=13.11.1
+num2words>=0.5.14
+pytest>=9.1.0
+pyinstaller>=6.17.0

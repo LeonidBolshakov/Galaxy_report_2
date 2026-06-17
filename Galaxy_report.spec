@@ -6,7 +6,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-	('_internal\\report.ui', '_internal'),
+	('_internal\\report.ui', '.'),
 ],
     hiddenimports=[],
     hookspath=[],
