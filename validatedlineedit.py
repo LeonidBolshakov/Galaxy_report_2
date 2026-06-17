@@ -23,7 +23,7 @@ class ValidatedLineEdit(QLineEdit):
         )
 
     def keyPressEvent(self, event):
-        """Обрабатывает Enter так же, как Tab."""
+        """Enter завершает ввод: сначала отправляет сигнал, затем переносит фокус."""
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self._skip_next_focus_out = True
             if self.hasAcceptableInput():

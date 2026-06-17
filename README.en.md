@@ -97,6 +97,11 @@ Galaxy_report_2/
 └── Galaxy_report.spec       # PyInstaller build spec
 ```
 
+## Additional Documentation
+
+- [Build exe](docs/build.md)
+- [Project architecture](docs/architecture.md)
+
 ## Installation
 
 Create and activate a virtual environment, then install dependencies:

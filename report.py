@@ -44,7 +44,6 @@ class Report(QMainWindow):
     edtPaidOutput: QLineEdit
 
     def __init__(self) -> None:
-        """Инициализация UI, атрибутов и подключение сигналов."""
         super().__init__()
         self.init_UI()  # Инициализация UI, подготовленного Qt Designer, в том числе установка атрибутов полей
 
