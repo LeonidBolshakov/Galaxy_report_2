@@ -259,21 +259,18 @@ class Report(QMainWindow):
 
         self.compute_and_display()
 
-        if attribute_name == "clients_with_nds" and obj.submitted_by_enter:
-            QtCore.QTimer.singleShot(0, self.edtPaid_1.setFocus)
-
     def handler_invalid_reference_value(self, obj: ValidatedLineEdit) -> None:
         """Восстанавливает справочное значение после невалидного ввода."""
         attribute_name = self.input_line_edits[obj]
-        current_value = self.reference_values[attribute_name]
-        f.put_line_input(obj, current_value)
-        f.set_style_input(obj)
-
         f.show_message(
             "Пустое или некорректное значение не может быть применено.\n\n"
             "Восстановлено последнее подтверждённое значение.",
             C.TIME_TO_SHOW_FAILURE_MS,
         )
+        current_value = self.reference_values[attribute_name]
+        f.put_line_input(obj, current_value)
+        f.set_style_input(obj)
+        QtCore.QTimer.singleShot(0, obj.setFocus)
 
     def _confirm_reference_change(self) -> bool:
         """Запрашивает подтверждение изменения справочного параметра."""
@@ -295,10 +292,11 @@ class Report(QMainWindow):
             "Применить на текущий сеанс",
             QMessageBox.ButtonRole.AcceptRole,
         )
-        cancel_button.setDefault(True)
-        cancel_button.setStyleSheet(
-            "font-weight: bold; background-color: #ffd6d6; padding: 6px 12px;"
-        )
+        if cancel_button is not None:
+            cancel_button.setDefault(True)
+            cancel_button.setStyleSheet(
+                "font-weight: bold; background-color: #ffd6d6; padding: 6px 12px;"
+            )
 
         msg_box.exec()
         return msg_box.clickedButton() is apply_button

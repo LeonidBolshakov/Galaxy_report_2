@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QLineEdit, QApplication, QMessageBox
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QEventLoop, Qt, QTimer
 
 from num2words import num2words  # type: ignore
 
@@ -210,15 +210,21 @@ def show_message(text: str, wait: int) -> None:
     """
     # Создаём окно сообщения
     msg_box = QMessageBox()
+    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+    msg_box.setWindowModality(Qt.WindowModality.ApplicationModal)
     msg_box.setText(text)
+
+    loop = QEventLoop()
+    msg_box.finished.connect(loop.quit)
+
+    timer = QTimer(msg_box)
+    timer.setSingleShot(True)
+    timer.timeout.connect(msg_box.accept)
+    timer.start(max(0, wait))
     msg_box.show()
-
-    # Создаём функцию для закрытия окна
-    def close_app() -> None:
-        msg_box.deleteLater()
-
-    # Для закрытия окна устанавливаем таймер
-    QTimer.singleShot(wait, close_app)
+    loop.exec()
+    timer.stop()
+    msg_box.deleteLater()
 
 
 def set_style_input(line_edit: QLineEdit) -> None:
