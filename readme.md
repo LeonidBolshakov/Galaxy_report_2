@@ -31,13 +31,19 @@ Initial form:
 
 ![Initial form](docs/images/galaxy-report-empty.png)
 
+[Open initial form screenshot](docs/images/galaxy-report-empty.png)
+
 Filled form with dynamic payment rows and copied output highlighting:
 
 ![Filled form](docs/images/galaxy-report-filled.png)
 
+[Open filled form screenshot](docs/images/galaxy-report-filled.png)
+
 Reference value confirmation:
 
 ![Reference value confirmation](docs/images/galaxy-report-reference-warning.png)
+
+[Open reference value confirmation screenshot](docs/images/galaxy-report-reference-warning.png)
 
 ## Technology
 
